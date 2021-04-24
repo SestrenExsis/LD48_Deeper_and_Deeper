@@ -16,17 +16,12 @@ __lua__
 
 --[[
 game states
+    t <--> w <--> f
  t: title screen
- a: adventure
-
- t <--> a
-
-adventure states
  w: world
  f: fight
-
- w <--> f
 --]]
+
 -- change keypress delays
 poke(0x5f5c,6)
 poke(0x5f5d,6)
@@ -45,10 +40,19 @@ _ports={
 	{ 9,14,25,30},
 	{25,31, 9,15},
 }
+_act=1
+_acts={
+	"slash",
+	"curse",
+	"heal",
+	"retreat",
+}
 
 function _init()
 	_herox=31
 	_heroy=25
+	_heron="hero"
+	_herol=1
 	_herof="dn"
 	initworld()
 end
@@ -141,10 +145,41 @@ function initfight()
 	initfn=initfight
 	updatefn=updatefight
 	drawfn=drawfight
+	_act=1
 end
 
 function updatefight()
+	if btnp(🅾️) then
+		initworld()
+	end
+	if btnp(⬆️) then
+		_act=max(1,_act-1)
+	elseif btnp(⬇️) then
+		_act=min(#_acts,_act+1)
+	end
 	if btnp(❎) then
+		act(_acts[_act])
+	end
+end
+
+function act(action)
+	local camx=_camx
+	local camy=_camy
+	camera(0,0)
+	local colr=8
+	if action=="curse" then
+		colr=3
+	elseif action=="heal" then
+		colr=14
+	elseif action=="retreat" then
+		colr=10
+	end
+	print(action,64,64,colr)
+	for i=1,30 do
+		flip()
+	end
+	camera(camx,camy)
+	if action=="retreat" then
 		initworld()
 	end
 end
@@ -152,17 +187,31 @@ end
 function drawfight()
 	local camx=_camx
 	local camy=_camy
-	local x=4
-	local y=16
-	local w=120
-	local h=96
+	local x1=4
+	local y1=16
+	local x2=x1+120
+	local y2=y1+96
 	camera(0,0)
-	rectfill(x+0,y+0,x+w-0,y+h-0,0)
-	rectfill(x+1,y+1,x+w-1,y+h-1,7)
-	rectfill(x+2,y+2,x+w-2,y+h-2,1)
-	rectfill(x+3,y+3,x+w-3,y+h-3,0)
-	spr(3,32,56,1,2)
-	spr(36,96,64,1,1)
+	rectfill(x1+0,y1+0,x2-0,y2-0,0)
+	rectfill(x1+1,y1+1,x2-1,y2-1,7)
+	rectfill(x1+2,y1+2,x2-2,y2-2,1)
+	rectfill(x1+3,y1+3,x2-3,y2-3,0)
+	spr(3,x1+20,y1+8,1,2)
+	spr(36,x2-24,y1+16,1,1)
+	local name=_heron..", level "
+	name=name..tostr(_herol)
+	print(name,x1+8,y2-32-6,6)
+	for i=1,#_acts do
+		local txt=_acts[i]
+		local colr=5
+		if _act==i then
+			colr=7
+			txt=">"..txt
+		else
+			txt=" "..txt
+		end
+		print(txt,x1+8,y2-32+6*i,colr)
+	end
 	camera(camx,camy)
 end
 __gfx__
