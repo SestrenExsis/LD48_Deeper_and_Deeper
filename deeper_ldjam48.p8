@@ -36,12 +36,13 @@ _heroy=0  -- hero tile y
 _herof="" -- hero facing dir
 _camx=0 -- camera target x
 _camy=0 -- camera target y
-_ports={
+_doors={ -- doors
 	{9,14,22,61},{22,62,9,15},
 	{22,14,7,61},{7,62,22,15},
 	{23,14,8,61},{8,62,23,15},
 }
-_bound={x1=0,y1=0,x2=128,y2=128}
+_world={x1=0,y1=0,x2=128,y2=128}
+_bound=_world
 _rooms={
 	{x1=1,y1=55,x2=13,y2=62},
 	{x1=15,y1=54,x2=30,y2=62},
@@ -53,6 +54,7 @@ _acts={
 	"heal",
 	"retreat",
 }
+_mobs={}
 
 function _init()
 	_herox=28
@@ -104,20 +106,19 @@ function updateworld()
 			_herox=tx
 			_heroy=ty
 		end
-		for p in all(_ports) do
+		-- check if entering a door
+		for door in all(_doors) do
 			if (
-				p[1]==_herox and
-				p[2]==_heroy
+				door[1]==_herox and
+				door[2]==_heroy
 			) then
-				_herox=p[3]
-				_heroy=p[4]
+				_herox=door[3]
+				_heroy=door[4]
 				break
 			end
 		end
 	end
-	_camx=8*_herox-64
-	_camy=8*_heroy-64
-	local bound=_bound
+	_bound=_world
 	for i=1,#_rooms do
 		local room=_rooms[i]
 		if (
@@ -126,20 +127,12 @@ function updateworld()
 			room.y1<=_heroy and
 			room.y2>=_heroy
 		) then
-			bnd=room
+			_bound=room
 			break
 		end
 	end
-	if _camx<8*bound.x1 then
-		_camx=8*bound.x1
-	elseif _camx>8*bound.x2 then
-		_camx=8*bound.x2
-	end
-	if _camy<8*bound.y1 then
-		_camy=8*bound.y1
-	elseif _camx>8*bound.y2 then
-		_camy=8*bound.y2
-	end
+	_camx=8*_herox-64
+	_camy=8*_heroy-64
 	if btnp(❎) then
 		initfight()
 	end
