@@ -54,7 +54,12 @@ _acts={
 	"heal",
 	"retreat",
 }
-_mobs={}
+_mobs={
+	{name="slime",anim=36,hp=10,dmg=1},
+	{name="chicken",anim=8,hp=5,dmg=3},
+	{name="pig",anim=25,hp=25,dmg=1},
+}
+_mob={}
 
 function _init()
 	_herox=28
@@ -162,6 +167,13 @@ function initfight()
 	updatefn=updatefight
 	drawfn=drawfight
 	_act=1
+	local mob=rnd(_mobs)
+	_mob={
+		name=mob.name,
+		anim=mob.anim,
+		hp=mob.hp,
+		dmg=mob.dmg,
+	}
 end
 
 function updatefight()
@@ -213,10 +225,11 @@ function drawfight()
 	rectfill(x1+2,y1+2,x2-2,y2-2,1)
 	rectfill(x1+3,y1+3,x2-3,y2-3,0)
 	spr(3,x1+20,y1+8,1,2)
-	spr(36,x2-24,y1+16,1,1)
+	spr(_mob.anim,x2-24,y1+16,1,1)
 	local name=_heron..", level "
 	name=name..tostr(_herol)
 	print(name,x1+8,y2-32-6,6)
+	print(_mob.name,x1+64,y2-32-6,8)
 	for i=1,#_acts do
 		local txt=_acts[i]
 		local colr=5
