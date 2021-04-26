@@ -39,6 +39,7 @@ _herohp=100
 _herodmg=10
 _enemyhp=100
 _enemydmg=10
+_bar=0
 _camx=0 -- camera target x
 _camy=0 -- camera target y
 -- door triggers
@@ -125,6 +126,10 @@ function _init()
 	_heroy=50
 	_herol=1
 	_herof="dn"
+	_herohp=100
+	_herodmg=10
+	_enemyhp=100
+	_enemydmg=10
 	initworld()
 end
 
@@ -236,10 +241,25 @@ function initfight()
 	updatefn=updatefight
 	drawfn=drawfight
 	_turn="attack!"
+	_bar=1
 end
 
 function updatefight()
-	print(_turn)
+	if btnp(❎) or btnp(🅾️) then
+		if _turn=="attack!" then
+			_enemyhp-=_herodmg
+				if _enemyhp<1 then
+					initend("you won! \nthank you for playing!")
+				end
+			_turn="defend!"
+		else
+			_herohp-=_enemydmg
+			if _herohp<1 then
+				initend("you lost! \ntry again")
+			end
+			_turn="attack!"
+		end
+	end
 end
 
 function drawfight()
@@ -258,6 +278,10 @@ function drawfight()
 	spr(70,x2-24,y1+8,1,2)
 	print(_heron,x1+8,y2-32-6,6)
 	print("subcon",x1+64,y2-32-6,8)
+	--print(_bar)
+	print(_turn)
+	print(_herohp)
+	print(_enemyhp)
 	camera(camx,camy)
 end
 
@@ -289,13 +313,13 @@ function updatechat()
 	end
 end
 
-function quote(q)
+function quote(q,d)
 	local res=""
 	local snds={"a1","e1","b1"}
 	local snd=""
 	for c in all(split(q,"")) do
 		snd=rnd(snds)
-		res..="\as1i0"..snd.." \^1"..c
+		res..="\as1i0"..snd.." \^"..d..c
 	end
 	return res
 end
@@ -332,10 +356,39 @@ function drawchat()
 	spr(portrait,px,py,2,2,flp)
 	print(name,px+18-ofx,py+20,border)
 	if _talking then
-		text=quote(text)
+		text=quote(text,1)
 		_talking=false
 	end
 	print(text,tx,ty,7)
+	camera(camx,camy)
+end
+
+function initend(text)
+	initfn=initend
+	updatefn=updateend
+	drawfn=drawend
+	music(-1,300)
+	_text=text
+	_talking=true
+end
+
+function updateend()
+	if btnp(❎) or btnp(🅾️) then
+		_init()
+	end
+end
+
+function drawend()
+	local camx=_camx
+	local camy=_camy
+	camera(0,0)
+	cls()
+	local text=_text
+	if _talking then
+		text=quote(_text,2)
+		_talking=false
+	end
+	print(text,16,48,7)
 	camera(camx,camy)
 end
 __gfx__
