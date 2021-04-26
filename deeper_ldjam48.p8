@@ -55,7 +55,21 @@ _doors={
 -- x,y,portrait,name,quote
 _chats={
 -- john
-	{11,53,98,"john","hi, i'm john, your \nneighbor. i'll give you \nthe goods but let's see \n10 gold coins first."},
+	{11,53,98,"john",{
+		"hi, i'm john, your \nneighbor. i'll give you \nthe goods but let's see \n10 gold coins first.",
+	}},
+-- scientist
+	{59,53,93,"scientist",{
+		"yes! it's alive! \nit's alive!",
+		"... oh, sorry, just \ntesting m'freakystein.",
+		"want one of my spare \ngadgets?",
+	}},
+-- bedkeeper
+	{83,52,91,"bedkeeper",{
+		"zzz ...",
+		"huh, hello? sorry, \nbut would you like t- \nzzz ...",
+		"what, oh yes, would \nyou like to use my beds?",
+	}},
 }
 _world={x1=0,y1=0,x2=128,y2=128}
 _bound=_world
@@ -78,8 +92,8 @@ _mobs={
 _mob={}
 
 function _init()
-	_herox=11--37
-	_heroy=53--50
+	_herox=37
+	_heroy=50
 	_heron="hero"
 	_herol=1
 	_herof="dn"
@@ -279,13 +293,18 @@ function initchat(chat)
 	drawfn=drawchat
 	_portrait=chat[3]
 	_name=chat[4]
-	_quote=chat[5]
-	_phase=1
+	_phrases=chat[5]
+	_phrase=1
+	_talking=true
 end
 
 function updatechat()
 	if btnp(❎) then
-		initworld()
+		_phrase+=1
+		_talking=true
+		if _phrase>#_phrases then
+			initworld()
+		end
 	end
 end
 
@@ -314,13 +333,13 @@ function drawchat()
 	rectfill(x1+3,y1+3,x2-3,y2-3,0)
 	spr(_portrait,x1+4,y1+4,2,2)
 	print(_name,x1+4,y1+22,13)
-	local text=_quote
-	if _phase==1 then
-		text=quote(_quote)
+	local text=_phrases[_phrase]
+	if _talking then
+		text=quote(text)
+		_talking=false
 	end
 	print(text,x1+23,y1+4,7)
 	camera(camx,camy)
-	_phase=2
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000228888820000000000000000000000000000000000000000000775750000000000066161
