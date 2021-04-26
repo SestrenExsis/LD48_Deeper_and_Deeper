@@ -34,6 +34,7 @@ _cart="ldjam48"
 _herox=0  -- hero tile x
 _heroy=0  -- hero tile y
 _herof="" -- hero facing dir
+_heron="hero"
 _camx=0 -- camera target x
 _camy=0 -- camera target y
 -- door triggers
@@ -52,24 +53,27 @@ _doors={
 -- 
 }
 -- dialogue triggers
--- x,y,portrait,name,quote
+-- x,y,
+-- side,border,portrait,name,quote
 _chats={
 -- john
-	{11,53,98,"john",{
-		"hi, i'm john, your \nneighbor. i'll give you \nthe goods but let's see \n10 gold coins first.",
-	}},
+	{11,53,
+		"r",13,98,"john","hi, i'm john, your \nneighbor. i'll give you \nthe goods but let's see \n10 gold coins first.",
+	},
 -- scientist
-	{59,53,93,"scientist",{
-		"yes! it's alive! \nit's alive!",
-		"... oh, sorry, just \ntesting m'freakystein.",
-		"want one of my spare \ngadgets?",
-	}},
+	{59,53,
+		"r", 1,93,"scientist","yes! it's alive! \nit's alive!",
+		"r", 1,93,"scientist","... oh, sorry, just \ntesting m'freakystein.",
+		"r", 1,93,"scientist","want one of my spare \ngadgets?",
+	},
 -- bedkeeper
-	{83,52,91,"bedkeeper",{
-		"zzz ...",
-		"huh, hello? sorry, \nbut would you like t- \nzzz ...",
-		"what, oh yes, would \nyou like to use my beds?",
-	}},
+	{83,52,
+		"r", 4,91,"bedkeeper","zzz ...",
+		"l",12,87,_heron,"ahem.",
+		"r", 4,91,"bedkeeper","huh, hello? sorry, \nbut would you like t- \nzzz ...",
+		"l",12,87,_heron,"...",
+		"r", 4,91,"bedkeeper","what, oh yes, would \nyou like to use my beds?",
+	},
 }
 _world={x1=0,y1=0,x2=128,y2=128}
 _bound=_world
@@ -94,7 +98,6 @@ _mob={}
 function _init()
 	_herox=37
 	_heroy=50
-	_heron="hero"
 	_herol=1
 	_herof="dn"
 	initworld()
@@ -291,18 +294,16 @@ function initchat(chat)
 	initfn=initchat
 	updatefn=updatechat
 	drawfn=drawchat
-	_portrait=chat[3]
-	_name=chat[4]
-	_phrases=chat[5]
-	_phrase=1
+	_chat=chat
+	_index=3
 	_talking=true
 end
 
 function updatechat()
 	if btnp(❎) then
-		_phrase+=1
+		_index+=5
 		_talking=true
-		if _phrase>#_phrases then
+		if _index>#_chat then
 			initworld()
 		end
 	end
@@ -331,14 +332,28 @@ function drawchat()
 	rectfill(x1+1,y1+1,x2-1,y2-1,7)
 	rectfill(x1+2,y1+2,x2-2,y2-2,1)
 	rectfill(x1+3,y1+3,x2-3,y2-3,0)
-	spr(_portrait,x1+4,y1+4,2,2)
-	print(_name,x1+4,y1+22,13)
-	local text=_phrases[_phrase]
+	local side=_chat[_index+0]
+	local border=_chat[_index+1]
+	local portrait=_chat[_index+2]
+	local name=_chat[_index+3]
+	local text=_chat[_index+4]
+	local px=x1+4
+	local py=y1+4
+	local tx=x1+24
+	local ty=y1+4
+	local ofx=18
+	if side=="r" then
+		px=x2-20
+		tx=x1+4
+		ofx=4*#name
+	end
+	spr(portrait,px,py,2,2)
+	print(name,px+18-ofx,py+20,border)
 	if _talking then
 		text=quote(text)
 		_talking=false
 	end
-	print(text,x1+23,y1+4,7)
+	print(text,tx,ty,7)
 	camera(camx,camy)
 end
 __gfx__
