@@ -99,13 +99,17 @@ _chats={
 	},
 -- subcon
 	{113,53,4,
-		--"r",10,89,"subcon","here i am, you know the \nweaker i get the weaker \neveerry thing gets",
-		--"r",10,89,"subcon","think of that, eh? \nyou'll never defeat me \nyou'll disintegrate \nfirst! join me or die!",
-		--"l",12,87,_heron,"i will never betray my \npeople. even when i kill \nyou and wake with the \nloss of my subconscious",
-		--"l",12,87,_heron,"my true warrior friends \nwill triumph over evil!",
-		--"r",10,89,"subcon","fool, evil has always \ntriumphed over good so \nnow we end this!",
-		--"l",12,87,_heron,"die, monster, you don't \nbelong in this place!!",
+		"r",10,89,"subcon","here i am, you know the \nweaker i get the weaker \neveerry thing gets",
+		"r",10,89,"subcon","think of that, eh? \nyou'll never defeat me \nyou'll disintegrate \nfirst! join me or die!",
+		"l",12,87,_heron,"i will never betray my \npeople. even when i kill \nyou and wake with the \nloss of my subconscious",
+		"l",12,87,_heron,"my true warrior friends \nwill triumph over evil!",
+		"r",10,89,"subcon","fool, evil has always \ntriumphed over good so \nnow we end this!",
+		"l",12,87,_heron,"die, monster, you don't \nbelong in this place!!",
 		"r",10,89,"subcon","so be it.",
+	},
+-- painting
+	{31,49,1,
+		"l",12,87,_heron,"hmm...",
 	},
 }
 _world={x1=0,y1=0,x2=128,y2=128}
@@ -241,19 +245,30 @@ function initfight()
 	updatefn=updatefight
 	drawfn=drawfight
 	_turn="attack!"
-	_bar=1
+	_bar=2
+	_gain=2
 end
 
 function updatefight()
+	_bar+=_gain
+	if _bar>100 then
+		_gain=-2
+		_bar=100
+	elseif _bar<0 then
+		_gain=2
+		_bar=0
+	end
 	if btnp(❎) or btnp(🅾️) then
 		if _turn=="attack!" then
-			_enemyhp-=_herodmg
+			local dmg=0.01*_bar*_herodmg
+			_enemyhp-=ceil(dmg)
 				if _enemyhp<1 then
 					initend("you won! \nthank you for playing!")
 				end
 			_turn="defend!"
 		else
-			_herohp-=_enemydmg
+			local dmg=(1-0.01*_bar)*_enemydmg
+			_herohp-=ceil(dmg)
 			if _herohp<1 then
 				initend("you lost! \ntry again")
 			end
@@ -278,10 +293,13 @@ function drawfight()
 	spr(70,x2-24,y1+8,1,2)
 	print(_heron,x1+8,y2-32-6,6)
 	print("subcon",x1+64,y2-32-6,8)
-	--print(_bar)
-	print(_turn)
-	print(_herohp)
-	print(_enemyhp)
+	if _turn=="attack!" then
+		print("attack power: \^i\^t\^w".._bar,18,96,9)
+	else
+		print("block power: \^i\^t\^w".._bar,18,96,9)
+	end
+	print("\^i\^t\^w".._herohp,18,48,3)
+	print("\^i\^t\^w".._enemyhp,84,48,8)
 	camera(camx,camy)
 end
 
